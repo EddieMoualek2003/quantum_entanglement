@@ -26,7 +26,7 @@ def passive_listen():
     """
     Keeps listening for the wake word using Vosk offline STT.
     """
-    print("👂 Passive listening for wake word...")
+    print(">>> Passive listening for wake word...")
 
     with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype='int16',
                            channels=1, callback=audio_callback):
@@ -37,10 +37,10 @@ def passive_listen():
             if rec.AcceptWaveform(data):
                 result = json.loads(rec.Result())
                 text = result.get("text", "").lower()
-                print("🗣️ Heard:", text)
+                print("Heard:", text)
 
                 if WAKE_WORD in text:
-                    print("✅ Wake word detected!")
+                    print(" << Wake word detected! >> ")
                     return  # exit to trigger active listen
 
 
@@ -48,7 +48,7 @@ def active_listen(timeout=5):
     """
     Listens actively for a follow-up command for X seconds.
     """
-    print(f"🎤 Active listening for {timeout} seconds...")
+    print(f" << Active listening for {timeout} seconds... >> ")
 
     with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype='int16',
                            channels=1, callback=audio_callback):
@@ -64,5 +64,5 @@ def active_listen(timeout=5):
                 if text:
                     captured += " " + text
 
-        print("🎯 Captured command:", captured.strip())
+        print(" << Captured command:", captured.strip(), ">> ")
         return captured.strip()
