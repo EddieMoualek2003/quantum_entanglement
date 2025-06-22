@@ -6,8 +6,8 @@ import sys
 from time import sleep
 
 from ibm_qc_interface import noisy_simulator
-from wake_word_listener import passive_listen
-from watson_stt import *
+# from wake_word_listener import passive_listen
+# from watson_stt import *
 
 # ========== OUTPUT METHODS ==========
 def fallback_cli_output(qubit_a, qubit_b):
@@ -77,10 +77,10 @@ def simulate_chatbot_loop(command_queue, game_running_flag):
             sleep(1)
             continue
 
-        passive_listen()
+        # passive_listen()
 
-        record_audio("test.wav", duration=5)
-        spoken = transcribe_ibm("test.wav")
+        # record_audio("test.wav", duration=5)
+        spoken = input("Enter Command (In place of Watson): ") # transcribe_ibm("test.wav")
 
         # spoken = active_listen(timeout=5)
         print(f"SPOKEN {spoken}")
