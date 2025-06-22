@@ -115,7 +115,8 @@ def entanglement_game_main():
     simulate_chatbot_loop(command_queue, game_flag)
     worker_thread.join()
 
-# ========== MAIN ==========
-if __name__ == "__main__":
-    #print("Hello world")
-    entanglement_game_main()
+# # ========== MAIN ==========
+# if __name__ == "__main__":
+#     #print("Hello world")
+#    entanglement_game_main()    
+entanglement_game_main()
