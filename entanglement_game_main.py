@@ -117,4 +117,5 @@ def entanglement_game_main():
 
 # ========== MAIN ==========
 if __name__ == "__main__":
+    print("Hello world")
     entanglement_game_main()
