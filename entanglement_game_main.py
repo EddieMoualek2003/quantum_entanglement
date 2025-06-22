@@ -1,124 +1,116 @@
-# from qiskit import QuantumCircuit
-# import time
-# import threading
-# import queue
-# import sys
-# from time import sleep
+from qiskit import QuantumCircuit
+from time import sleep
+import threading
+import queue
+import sys
 
-# from ibm_qc_interface import noisy_simulator
-# # from wake_word_listener import passive_listen
-# # from watson_stt import *
+from ibm_qc_interface import noisy_simulator
 
-# # ========== OUTPUT METHODS ==========
-# def fallback_cli_output(qubit_a, qubit_b):
-#     print(f"[CLI OUTPUT] Qubit A: {qubit_a}, Qubit B: {qubit_b}")
 
-# def display_qubits(qubit_a, qubit_b):
-#     fallback_cli_output(qubit_a, qubit_b)
+# ========== OUTPUT METHODS ==========
+def fallback_cli_output(qubit_a, qubit_b):
+    print(f"[CLI OUTPUT] Qubit A: {qubit_a}, Qubit B: {qubit_b}")
 
-# # ========== GAME LOGIC ==========
-# def speak(message):
-#     print(f"\n {message}")
 
-# def get_user_input():
-#     user_text = input("Please enter your guess for Qubit B (0 or 1): ").strip()
-#     return '1' if '1' in user_text else '0' if '0' in user_text else None
+def display_qubits(qubit_a, qubit_b):
+    fallback_cli_output(qubit_a, qubit_b)
 
-# def entanglement_game():
-#     score = 0
-#     rounds = 5
-#     speak("Welcome to the Quantum Entanglement Time Challenge!")
-#     time.sleep(1)
-#     for i in range(rounds):
-#         speak(f"Round {i+1}. Preparing entangled qubits...")
 
-#         qc = QuantumCircuit(2, 2)
-#         qc.h(0)
-#         qc.cx(0, 1)
-#         qc.measure([0, 1], [0, 1])
-#         counts = noisy_simulator(qc)[0]
-#         outcome = list(counts.keys())[0]
-#         qubit_b, qubit_a = outcome[0], outcome[1]
+# ========== GAME LOGIC ==========
+def speak(message):
+    print(f"\n{message}")
 
-#         display_qubits(qubit_a, '0')
-#         speak(f"Qubit A is measured as {qubit_a}. Make your prediction for Qubit B (0 or 1).")
-#         prediction = get_user_input()
 
-#         if prediction is None:
-#             speak(f"No valid input detected. Qubit B was {qubit_b}.")
-#         elif prediction == qubit_b:
-#             speak("Correct! Qubit B matches Qubit A.")
-#             score += 1
-#         else:
-#             speak(f"Incorrect. Qubit B was actually {qubit_b}.")
+def get_user_input():
+    try:
+        user_text = input("Please enter your guess for Qubit B (0 or 1): ").strip()
+        return '1' if '1' in user_text else '0' if '0' in user_text else None
+    except EOFError:
+        print("[ERROR] Input failed. This game requires interactive mode.")
+        return None
 
-#         display_qubits(qubit_a, qubit_b)
 
-#     speak(f"Game over. You scored {score} out of {rounds}. Well done!")
+def entanglement_game():
+    score = 0
+    rounds = 5
+    speak("Welcome to the Quantum Entanglement Time Challenge!")
+    sleep(1)
 
-# # ========== CLI WORKER ==========
-# def game_command_worker(command_queue, game_running_flag):
-#     while True:
-#         cmd = command_queue.get()
-#         if cmd == "roll":
-#             game_running_flag.set()
-#             entanglement_game()
-#             game_running_flag.clear()
-#         elif cmd == "exit":
-#             print("[INFO] Exiting game.")
-#             break
+    for i in range(rounds):
+        speak(f"\nRound {i + 1}: Preparing entangled qubits...")
 
-# # ========== WAKE WORD LISTENER ==========
-# def simulate_chatbot_loop(command_queue, game_running_flag):
-#     awaiting_command = True
-#     print("[INFO] Say 'Hey Watson' to start.")
-#     while True:
-#         if game_running_flag.is_set():
-#             sleep(1)
-#             continue
+        qc = QuantumCircuit(2, 2)
+        qc.h(0)
+        qc.cx(0, 1)
+        qc.measure([0, 1], [0, 1])
 
-#         # passive_listen()
+        counts = noisy_simulator(qc)[0]
+        outcome = list(counts.keys())[0]
+        qubit_b, qubit_a = outcome[0], outcome[1]
 
-#         # record_audio("test.wav", duration=5)
-#         spoken = "play" # input("Enter Command (In place of Watson): ") # transcribe_ibm("test.wav")
+        display_qubits(qubit_a, '0')
+        speak(f"Qubit A is measured as {qubit_a}. Make your prediction for Qubit B (0 or 1).")
+        prediction = get_user_input()
 
-#         # spoken = active_listen(timeout=5)
-#         print(f"SPOKEN {spoken}")
-#         if not spoken:
-#             continue
+        if prediction is None:
+            speak(f"No valid input detected. Qubit B was {qubit_b}.")
+        elif prediction == qubit_b:
+            speak("Correct. Qubit B matches Qubit A.")
+            score += 1
+        else:
+            speak(f"Incorrect. Qubit B was actually {qubit_b}.")
 
-#         reply = spoken.lower()
-#         # if "hey watson" in reply:
-#         #     print("[WAKE] Wake word detected. Say 'play' or 'entanglement' to begin.")
-#         #     awaiting_command = True
-#         #     continue
+        display_qubits(qubit_a, qubit_b)
 
-#         if not awaiting_command:
-#             continue
+    speak(f"\nGame over. You scored {score} out of {rounds}.")
 
-#         if any(k in reply for k in ["play", "entanglement", "game"]):
-#             awaiting_command = False
-#             command_queue.put("roll")
-#             print("Successfully Triggered")
-#             awaiting_command = True
-#         elif any(k in reply for k in ["exit", "stop", "quit"]):
-#             command_queue.put("exit")
-#             break
 
-# def entanglement_game_main():
-#     command_queue = queue.Queue()
-#     game_flag = threading.Event()
+# ========== GAME THREAD WORKER ==========
+def game_command_worker(command_queue, game_flag):
+    while True:
+        cmd = command_queue.get()
+        if cmd == "roll":
+            game_flag.set()
+            entanglement_game()
+            game_flag.clear()
+        elif cmd == "exit":
+            print("[INFO] Exiting game.")
+            break
 
-#     worker_thread = threading.Thread(target=game_command_worker, args=(command_queue, game_flag))
-#     worker_thread.start()
 
-#     simulate_chatbot_loop(command_queue, game_flag)
-#     worker_thread.join()
+# ========== CONSOLE LOOP ==========
+def simulate_cli_loop(command_queue, game_flag):
+    print("\n[Quantum Entanglement Game CLI]")
+    print("Type 'roll' to play or 'exit' to quit.\n")
+    while True:
+        if game_flag.is_set():
+            sleep(1)
+            continue
 
-# # # ========== MAIN ==========
-# # if __name__ == "__main__":
-# #     #print("Hello world")
-# #    entanglement_game_main()    
-# entanglement_game_main()
+        try:
+            cmd = input(">> ").strip().lower()
+        except EOFError:
+            print("[ERROR] EOF received. Exiting.")
+            break
 
-print("Hello world ####################")
+        if cmd in ["play", "roll", "start"]:
+            command_queue.put("roll")
+        elif cmd in ["exit", "quit", "q"]:
+            command_queue.put("exit")
+            break
+
+
+# ========== MAIN ==========
+def entanglement_game_main():
+    command_queue = queue.Queue()
+    game_flag = threading.Event()
+
+    worker_thread = threading.Thread(target=game_command_worker, args=(command_queue, game_flag))
+    worker_thread.start()
+
+    simulate_cli_loop(command_queue, game_flag)
+    worker_thread.join()
+
+
+if __name__ == "__main__":
+    entanglement_game_main()
