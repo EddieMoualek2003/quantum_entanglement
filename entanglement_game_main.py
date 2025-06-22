@@ -80,7 +80,7 @@ def simulate_chatbot_loop(command_queue, game_running_flag):
         # passive_listen()
 
         # record_audio("test.wav", duration=5)
-        spoken = input("Enter Command (In place of Watson): ") # transcribe_ibm("test.wav")
+        spoken = "play" # input("Enter Command (In place of Watson): ") # transcribe_ibm("test.wav")
 
         # spoken = active_listen(timeout=5)
         print(f"SPOKEN {spoken}")
